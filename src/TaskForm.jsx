@@ -7,11 +7,14 @@ function TaskForm ({inputValue, onInputChange, onAddTask, dateValue, onDateChang
       onChange={(e) => onInputChange(e.target.value)}
       placeholder="Введите задачу..."
       />
+      <div className="date-wrapper">
+        <label className="date-label">📅Дедлайн</label>
       <input
       type="date"
       value={dateValue}
       onChange={(e) => onDateChange(e.target.value)}
       />
+      </div>
       <button onClick={onAddTask}>Добавить</button>
     </section>
   )
