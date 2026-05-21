@@ -8,7 +8,7 @@ function TaskForm ({inputValue, onInputChange, onAddTask, dateValue, onDateChang
       placeholder="Введите задачу..."
       />
       <div className="date-wrapper">
-        <label className="date-label">📅Дедлайн</label>
+        <label className="date-label">Дедлайн</label>
       <input
       type="date"
       value={dateValue}
