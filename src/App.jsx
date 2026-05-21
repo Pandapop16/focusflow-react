@@ -10,12 +10,7 @@ import TaskForm from './TaskForm'
 function App() {
   const [tasks, setTasks] = useState(function() {
     const saved = localStorage.getItem('tasks')
-    return saved ? JSON.parse(saved) : [
-      { id: 1, text: 'Купить продукты', done: false },
-      { id: 2, text: 'Сделать зарядку', done: false },
-      { id: 3, text: 'Прочитать 10 страниц', done: false },
-      { id: 4, text: 'Поспать в обед', done: false }
-    ]
+    return saved ? JSON.parse(saved) : []
   })
 
   const [inputValue, setInputValue] = useState('')
