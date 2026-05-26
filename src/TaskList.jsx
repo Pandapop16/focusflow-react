@@ -23,7 +23,19 @@ function TaskList({ tasks, onToggle, onDelete, filter, onFilterChange }) {
           onClick={() => onFilterChange('done')}
         >Выполненные</button>
       </div>
-
+        {filteredTasks.length === 0 ? (
+        <div className="empty-state">
+          <p className="empty-icon">✅</p>
+          <p className="empty-title">
+            {filter ==='done' ? 'Нет выполненных задач':
+            filter ==='active' ? 'Все задачи выполнены!':
+            'Добавьте первую задачу'}
+          </p>
+          <p className="empty-subtitle">
+            {filter === 'all' ? 'Нажмите "Добавить" чтобы начать': ''}
+          </p>
+        </div>  
+        ) : (
       <ul>
         {filteredTasks.map(function(task) {
           return (
@@ -34,9 +46,25 @@ function TaskList({ tasks, onToggle, onDelete, filter, onFilterChange }) {
                 onChange={() => onToggle(task.id)}
               />
               <span className={task.done ? 'completed' : ''}>
-                {task.text}
-              </span>
-              {task.date && <span className="task-date">📅{task.date}</span>}
+                 {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
+                   {task.text}
+                </span>
+              {task.date && (
+                <div className="task-meta">
+                  <span className="task-date">
+                  📅{new Date(task.date + 'T00:00:00').toLocaleDateString('ru-RU', {
+                    day:'numeric',
+                    month:'long',
+                    year:'numeric'
+                  })}
+                  </span>
+                  {task.time && (
+                    <span className="task-time">
+                      🕰️{task.time}
+                      </span>
+                  )}
+                </div>
+              )}
               <button
                 className="delete-btn"
                 onClick={(e) => {
@@ -48,6 +76,7 @@ function TaskList({ tasks, onToggle, onDelete, filter, onFilterChange }) {
           )
         })}
       </ul>
+     )}
     </section>
   )
 }

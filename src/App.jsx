@@ -14,7 +14,9 @@ function App() {
   })
 
   const [inputValue, setInputValue] = useState('')
-  const [dateValue, setDataValue] = useState('')
+  const [dateValue, setDateValue] = useState('')
+  const [timeValue, setTimeValue] = useState('')
+  const [priority, setPriority] = useState('medium')
   const [isDark, setIsDark] = useState(true)
   const [filter, setFilter] = useState('all')
 
@@ -33,10 +35,14 @@ function App() {
       id: Date.now(),
       text: inputValue,
       done: false,
-      date: dateValue
+      date: dateValue,
+      time: timeValue,
+      priority: priority
     }])
     setInputValue('')
-    setDataValue('')
+    setDateValue('')
+    setTimeValue('')
+    setPriority('medium')
   }
 
   function toggleTask(id) {
@@ -52,8 +58,8 @@ function App() {
     }))
   }
 
-  function clearTask () {
-    if (window.confirm('Удалить все задачи?')){
+  function clearTask() {
+    if (window.confirm('Удалить все задачи?')) {
       setTasks([])
     }
   }
@@ -65,12 +71,16 @@ function App() {
         <Route path="/" element={
           <main id="app">
             <Progress tasks={tasks} />
-            <TaskForm 
-            inputValue={inputValue}
-            onInputChange={setInputValue}
-            onAddTask={addTask}
-            dateValue={dateValue}
-            onDateChange={setDataValue}
+            <TaskForm
+              inputValue={inputValue}
+              onInputChange={setInputValue}
+              onAddTask={addTask}
+              dateValue={dateValue}
+              onDateChange={setDateValue}
+              timeValue={timeValue}
+              onTimeChange={setTimeValue}
+              priority={priority}
+              onPriorityChange={setPriority}
             />
             <TaskList
               tasks={tasks}
@@ -82,12 +92,13 @@ function App() {
           </main>
         } />
         <Route path="/stats" element={<Stats tasks={tasks} />} />
-        <Route path="/settings" element={<Settings
+        <Route path="/settings" element={
+          <Settings
             isDark={isDark}
             onToggleTheme={toggleTheme}
             onClearTasks={clearTask}
-         />
-        }/>
+          />
+        } />
       </Routes>
     </div>
   )
