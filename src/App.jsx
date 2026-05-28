@@ -58,6 +58,13 @@ function App() {
     }))
   }
 
+  function editTask(id, newText) {
+    setTasks(tasks.map(function(task) {
+      if (task.id === id) return {...task, text: newText}
+      return task
+    }))
+  }
+
   function clearTask() {
     if (window.confirm('Удалить все задачи?')) {
       setTasks([])
@@ -86,6 +93,7 @@ function App() {
               tasks={tasks}
               onToggle={toggleTask}
               onDelete={deleteTask}
+              onEdit={editTask}
               filter={filter}
               onFilterChange={setFilter}
             />
