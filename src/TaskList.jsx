@@ -4,6 +4,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState('')
+  const [sortBy, setSortBy] = useState('none')
 
   const filteredTasks = tasks
     .filter(function(task) {
@@ -14,6 +15,22 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
     .filter(function(task) {
       return task.text.toLowerCase().includes(search.toLowerCase())
     })
+
+  const sortedTasks = [...filteredTasks].sort(function(a, b) {
+    if (sortBy === 'priority') {
+      const order = { high: 0, medium: 1, low: 2 }
+      return order[a.priority] - order[b.priority]
+    }
+    if (sortBy === 'date') {
+      if (!a.date) return 1
+      if (!b.date) return -1
+      return new Date(a.date) - new Date(b.date)
+    }
+    if (sortBy === 'name') {
+      return a.text.localeCompare(b.text)
+    }
+    return 0
+  })
 
   return (
     <section className="card">
@@ -40,7 +57,27 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
         >Выполненные</button>
       </div>
 
-      {filteredTasks.length === 0 ? (
+      <div className="sort-buttons">
+        <span className="sort-label">Сортировка:</span>
+        <button
+          className={`filter-btn ${sortBy === 'none' ? 'active-filter' : ''}`}
+          onClick={() => setSortBy('none')}
+        >По умолчанию</button>
+        <button
+          className={`filter-btn ${sortBy === 'priority' ? 'active-filter' : ''}`}
+          onClick={() => setSortBy('priority')}
+        >По приоритету</button>
+        <button
+          className={`filter-btn ${sortBy === 'date' ? 'active-filter' : ''}`}
+          onClick={() => setSortBy('date')}
+        >По дате</button>
+        <button
+          className={`filter-btn ${sortBy === 'name' ? 'active-filter' : ''}`}
+          onClick={() => setSortBy('name')}
+        >По названию</button>
+      </div>
+
+      {sortedTasks.length === 0 ? (
         <div className="empty-state">
           <p className="empty-icon">✅</p>
           <p className="empty-title">
@@ -54,7 +91,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
         </div>
       ) : (
         <ul>
-          {filteredTasks.map(function(task) {
+          {sortedTasks.map(function(task) {
             return (
               <li key={task.id} onClick={() => onToggle(task.id)}>
                 <input
@@ -85,9 +122,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
                     onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
-                  <span
-                    className={task.done ? 'completed' : ''}
-                  >
+                  <span className={task.done ? 'completed' : ''}>
                     {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
                     {task.text}
                   </span>
@@ -109,13 +144,14 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
                     )}
                   </div>
                 )}
-                <button 
-                className="edit-btn"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setEditingId(task.id)
-                  setEditText(task.text)
-                }}
+
+                <button
+                  className="edit-btn"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setEditingId(task.id)
+                    setEditText(task.text)
+                  }}
                 >✏️</button>
                 <button
                   className="delete-btn"

@@ -491,3 +491,15 @@ body.light-theme {
   background-color: var(--color-input);
   border-color: var(--color-accent);
 }
+
+.sort-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sort-label {
+  font-size: 12px;
+  opacity: 0.6;
+}
