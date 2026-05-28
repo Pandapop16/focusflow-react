@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange }) {
   const [search, setSearch] = useState('')
@@ -78,7 +79,12 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
       </div>
 
       {sortedTasks.length === 0 ? (
-        <div className="empty-state">
+        <motion.div
+          className="empty-state"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <p className="empty-icon">✅</p>
           <p className="empty-title">
             {filter === 'done' ? 'Нет выполненных задач' :
@@ -88,81 +94,90 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
           <p className="empty-subtitle">
             {filter === 'all' ? 'Нажмите "Добавить" чтобы начать' : ''}
           </p>
-        </div>
+        </motion.div>
       ) : (
         <ul>
-          {sortedTasks.map(function(task) {
-            return (
-              <li key={task.id} onClick={() => onToggle(task.id)}>
-                <input
-                  type="checkbox"
-                  checked={task.done}
-                  onChange={() => onToggle(task.id)}
-                />
-
-                {editingId === task.id ? (
+          <AnimatePresence>
+            {sortedTasks.map(function(task) {
+              return (
+                <motion.li
+                  key={task.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => onToggle(task.id)}
+                >
                   <input
-                    className="edit-input"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                    type="checkbox"
+                    checked={task.done}
+                    onChange={() => onToggle(task.id)}
+                  />
+
+                  {editingId === task.id ? (
+                    <input
+                      className="edit-input"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          onEdit(task.id, editText)
+                          setEditingId(null)
+                        }
+                        if (e.key === 'Escape') {
+                          setEditingId(null)
+                        }
+                      }}
+                      onBlur={() => {
                         onEdit(task.id, editText)
                         setEditingId(null)
-                      }
-                      if (e.key === 'Escape') {
-                        setEditingId(null)
-                      }
-                    }}
-                    onBlur={() => {
-                      onEdit(task.id, editText)
-                      setEditingId(null)
-                    }}
-                    autoFocus
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <span className={task.done ? 'completed' : ''}>
-                    {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
-                    {task.text}
-                  </span>
-                )}
-
-                {task.date && (
-                  <div className="task-meta">
-                    <span className="task-date">
-                      📅 {new Date(task.date + 'T00:00:00').toLocaleDateString('ru-RU', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
+                      }}
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span className={task.done ? 'completed' : ''}>
+                      {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
+                      {task.text}
                     </span>
-                    {task.time && (
-                      <span className="task-time">
-                        🕰️ {task.time}
-                      </span>
-                    )}
-                  </div>
-                )}
+                  )}
 
-                <button
-                  className="edit-btn"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setEditingId(task.id)
-                    setEditText(task.text)
-                  }}
-                >✏️</button>
-                <button
-                  className="delete-btn"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete(task.id)
-                  }}
-                >✕</button>
-              </li>
-            )
-          })}
+                  {task.date && (
+                    <div className="task-meta">
+                      <span className="task-date">
+                        📅 {new Date(task.date + 'T00:00:00').toLocaleDateString('ru-RU', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </span>
+                      {task.time && (
+                        <span className="task-time">
+                          🕰️ {task.time}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  <button
+                    className="edit-btn"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEditingId(task.id)
+                      setEditText(task.text)
+                    }}
+                  >✏️</button>
+                  <button
+                    className="delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDelete(task.id)
+                    }}
+                  >✕</button>
+                </motion.li>
+              )
+            })}
+          </AnimatePresence>
         </ul>
       )}
     </section>
