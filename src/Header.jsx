@@ -28,7 +28,7 @@ function Header({ isDark, onToggleTheme }) {
       </nav>
       <div className="header-right">
         <button id="theme-toggle" onClick={onToggleTheme}>
-        {isDark ? '🥮' : '☀️'}
+        {isDark ? '🌑' : '☀️'}
       </button>
       <button
       className='burger'
