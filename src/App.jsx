@@ -19,6 +19,7 @@ function App() {
   const [priority, setPriority] = useState('medium')
   const [isDark, setIsDark] = useState(true)
   const [filter, setFilter] = useState('all')
+  const [formOpen, setFormOpen] = useState(false)
 
   useEffect(function() {
     localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -88,7 +89,9 @@ function App() {
               onTimeChange={setTimeValue}
               priority={priority}
               onPriorityChange={setPriority}
-            />
+              formOpen={formOpen}
+              onToggleForm={() => setFormOpen(!formOpen)}
+              />
             <TaskList
               tasks={tasks}
               onToggle={toggleTask}

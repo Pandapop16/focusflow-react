@@ -20,7 +20,12 @@ function Progress({tasks}) {
       className="progress-bar-fill"
       initial={{width:0}}
       animate={{width:  `${percent}%`}}
-      transition={{duration: 0.6, ease:"easeInOut"}}
+      transition={{duration: 0.6, ease:"easeOut"}}
+      style={{
+        backgroundColor: percent === 100 ? '#4caf50' :
+                        percent >= 50 ? '#ff9800' :
+                        'var(--color-accent)'
+      }}
       ></motion.div>
     </div>
 
