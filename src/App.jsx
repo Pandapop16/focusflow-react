@@ -38,7 +38,8 @@ function App() {
       done: false,
       date: dateValue,
       time: timeValue,
-      priority: priority
+      priority: priority,
+      subtasks: []
     }])
     setInputValue('')
     setDateValue('')
@@ -62,6 +63,50 @@ function App() {
   function editTask(id, newText) {
     setTasks(tasks.map(function(task) {
       if (task.id === id) return {...task, text: newText}
+      return task
+    }))
+  }
+
+  function addSubtask(taskId,text) {
+    setTasks(tasks.map(function(task) {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          subtasks: [
+            ...(task.subtasks || []),
+            {id: Date.now(), text:text, done: false}
+          ]
+        }
+      }
+      return task
+    }))
+  }
+
+  function toggleSubtask(taskId,subtaskId) {
+    setTasks(tasks.map(function(task) {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          subtasks: task.subtasks.map(function(sub) {
+            if (sub.id === subtaskId) return { ...sub, done: !sub.done}
+            return sub
+          })
+        }
+      }
+      return task
+    }))
+  }
+
+  function deleteSubtask(taskId, subtaskId) {
+    setTasks(tasks.map(function(task){
+      if (task.id === taskId) {
+        return {
+          ...task,
+          subtasks: task.subtasks.filter(function(sub) {
+            return sub.id !== subtaskId
+          })
+        }
+      }
       return task
     }))
   }
@@ -97,6 +142,9 @@ function App() {
               onToggle={toggleTask}
               onDelete={deleteTask}
               onEdit={editTask}
+              onAddSubtask={addSubtask}
+              onToggleSubtask={toggleSubtask}
+              onDeleteSubtask={deleteSubtask}
               filter={filter}
               onFilterChange={setFilter}
             />

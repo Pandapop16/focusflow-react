@@ -1,11 +1,13 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
-function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange }) {
+function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSubtask, onDeleteSubtask, filter, onFilterChange }) {
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState('')
   const [sortBy, setSortBy] = useState('none')
+  const [subtaskInputId, setSubtaskInputId] = useState(null)
+  const [subtaskText, setSubtaskText] = useState('')
 
   const filteredTasks = tasks
     .filter(function(task) {
@@ -44,56 +46,26 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
       />
 
       <div className="filters">
-        <button
-          className={`filter-btn ${filter === 'all' ? 'active-filter' : ''}`}
-          onClick={() => onFilterChange('all')}
-        >Все</button>
-        <button
-          className={`filter-btn ${filter === 'active' ? 'active-filter' : ''}`}
-          onClick={() => onFilterChange('active')}
-        >Активные</button>
-        <button
-          className={`filter-btn ${filter === 'done' ? 'active-filter' : ''}`}
-          onClick={() => onFilterChange('done')}
-        >Выполненные</button>
+        <button className={`filter-btn ${filter === 'all' ? 'active-filter' : ''}`} onClick={() => onFilterChange('all')}>Все</button>
+        <button className={`filter-btn ${filter === 'active' ? 'active-filter' : ''}`} onClick={() => onFilterChange('active')}>Активные</button>
+        <button className={`filter-btn ${filter === 'done' ? 'active-filter' : ''}`} onClick={() => onFilterChange('done')}>Выполненные</button>
       </div>
 
       <div className="sort-buttons">
         <span className="sort-label">Сортировка:</span>
-        <button
-          className={`filter-btn ${sortBy === 'none' ? 'active-filter' : ''}`}
-          onClick={() => setSortBy('none')}
-        >По умолчанию</button>
-        <button
-          className={`filter-btn ${sortBy === 'priority' ? 'active-filter' : ''}`}
-          onClick={() => setSortBy('priority')}
-        >По приоритету</button>
-        <button
-          className={`filter-btn ${sortBy === 'date' ? 'active-filter' : ''}`}
-          onClick={() => setSortBy('date')}
-        >По дате</button>
-        <button
-          className={`filter-btn ${sortBy === 'name' ? 'active-filter' : ''}`}
-          onClick={() => setSortBy('name')}
-        >По названию</button>
+        <button className={`filter-btn ${sortBy === 'none' ? 'active-filter' : ''}`} onClick={() => setSortBy('none')}>По умолчанию</button>
+        <button className={`filter-btn ${sortBy === 'priority' ? 'active-filter' : ''}`} onClick={() => setSortBy('priority')}>По приоритету</button>
+        <button className={`filter-btn ${sortBy === 'date' ? 'active-filter' : ''}`} onClick={() => setSortBy('date')}>По дате</button>
+        <button className={`filter-btn ${sortBy === 'name' ? 'active-filter' : ''}`} onClick={() => setSortBy('name')}>По названию</button>
       </div>
 
       {sortedTasks.length === 0 ? (
-        <motion.div
-          className="empty-state"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <motion.div className="empty-state" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <p className="empty-icon">✅</p>
           <p className="empty-title">
-            {filter === 'done' ? 'Нет выполненных задач' :
-             filter === 'active' ? 'Все задачи выполнены!' :
-             'Добавьте первую задачу'}
+            {filter === 'done' ? 'Нет выполненных задач' : filter === 'active' ? 'Все задачи выполнены!' : 'Добавьте первую задачу'}
           </p>
-          <p className="empty-subtitle">
-            {filter === 'all' ? 'Нажмите "Добавить" чтобы начать' : ''}
-          </p>
+          <p className="empty-subtitle">{filter === 'all' ? 'Нажмите "Добавить" чтобы начать' : ''}</p>
         </motion.div>
       ) : (
         <ul>
@@ -106,74 +78,102 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, filter, onFilterChange })
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.2 }}
-                  onClick={() => onToggle(task.id)}
+                  style={{ flexDirection: 'column', alignItems: 'stretch' }}
                 >
-                  <input
-                    type="checkbox"
-                    checked={task.done}
-                    onChange={() => onToggle(task.id)}
-                  />
+                  <div className="task-row" onClick={() => onToggle(task.id)}>
+                    <input type="checkbox" checked={task.done} onChange={() => onToggle(task.id)} />
 
-                  {editingId === task.id ? (
-                    <input
-                      className="edit-input"
-                      value={editText}
-                      onChange={(e) => setEditText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          onEdit(task.id, editText)
-                          setEditingId(null)
-                        }
-                        if (e.key === 'Escape') {
-                          setEditingId(null)
-                        }
-                      }}
-                      onBlur={() => {
-                        onEdit(task.id, editText)
-                        setEditingId(null)
-                      }}
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  ) : (
-                    <span className={task.done ? 'completed' : ''}>
-                      {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
-                      {task.text}
-                    </span>
-                  )}
-
-                  {task.date && (
-                    <div className="task-meta">
-                      <span className="task-date">
-                        📅 {new Date(task.date + 'T00:00:00').toLocaleDateString('ru-RU', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
+                    {editingId === task.id ? (
+                      <input
+                        className="edit-input"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') { onEdit(task.id, editText); setEditingId(null) }
+                          if (e.key === 'Escape') setEditingId(null)
+                        }}
+                        onBlur={() => { onEdit(task.id, editText); setEditingId(null) }}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className={task.done ? 'completed' : ''}>
+                        {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
+                        {task.text}
                       </span>
-                      {task.time && (
-                        <span className="task-time">
-                          🕰️ {task.time}
-                        </span>
-                      )}
+                    )}
+
+                    {task.date && (
+                      <div className="task-meta">
+                        <span className="task-date">📅 {new Date(task.date + 'T00:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        {task.time && <span className="task-time">🕰️ {task.time}</span>}
+                      </div>
+                    )}
+
+                    <button className="subtask-add-btn" onClick={(e) => { e.stopPropagation(); setSubtaskInputId(subtaskInputId === task.id ? null : task.id); setSubtaskText('') }}>➕</button>
+                    <button className="edit-btn" onClick={(e) => { e.stopPropagation(); setEditingId(task.id); setEditText(task.text) }}>✏️</button>
+                    <button className="delete-btn" onClick={(e) => { e.stopPropagation(); onDelete(task.id) }}>❌</button>
+                  </div>
+
+                  {/* Поле добавления подзадачи */}
+                  {subtaskInputId === task.id && (
+                    <div className="subtask-input-row" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        placeholder="Введите подзадачу..."
+                        value={subtaskText}
+                        onChange={(e) => setSubtaskText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && subtaskText.trim()) {
+                            onAddSubtask(task.id, subtaskText.trim())
+                            setSubtaskText('')
+                            setSubtaskInputId(null)
+                          }
+                          if (e.key === 'Escape') setSubtaskInputId(null)
+                        }}
+                        autoFocus
+                      />
+                      <button onClick={() => {
+                        if (subtaskText.trim()) {
+                          onAddSubtask(task.id, subtaskText.trim())
+                          setSubtaskText('')
+                          setSubtaskInputId(null)
+                        }
+                      }}>Добавить</button>
                     </div>
                   )}
 
-                  <button
-                    className="edit-btn"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setEditingId(task.id)
-                      setEditText(task.text)
-                    }}
-                  >✏️</button>
-                  <button
-                    className="delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete(task.id)
-                    }}
-                  >✕</button>
+                  {/* Список подзадач */}
+                  {task.subtasks && task.subtasks.length > 0 && (
+                    <div className="subtask-section">
+                      <span className="subtask-counter">
+                        ✅ {task.subtasks.filter(s => s.done).length} из {task.subtasks.length}
+                      </span>
+                    <ul className="subtask-list">
+                      {task.subtasks.map(function(sub) {
+                        return (
+                          <li key={sub.id} className="subtask-item">
+                            <input 
+                            type="checkbox"
+                             checked={sub.done} 
+                             onChange={(e) => {
+                              e.stopPropagation()
+                              onToggleSubtask(task.id, sub.id)
+                              }}
+                            />
+                            <span className={sub.done ? 'completed' : ''}>{sub.text}</span>
+                            <button 
+                              className="delete-btn"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onDeleteSubtask(task.id, sub.id)
+                              }}
+                              >❌</button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                    </div>
+                  )}
                 </motion.li>
               )
             })}
