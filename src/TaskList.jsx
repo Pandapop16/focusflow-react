@@ -160,7 +160,16 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
                               onToggleSubtask(task.id, sub.id)
                               }}
                             />
-                            <span className={sub.done ? 'completed' : ''}>{sub.text}</span>
+                            <span 
+                            className={sub.done ? 'completed' : ''}
+                            style={{cursor: 'pointer', flex:1}}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onToggleSubtask(task.id, sub.id)
+                            }}
+                            >
+                              {sub.text}
+                              </span>
                             <button 
                               className="delete-btn"
                               onClick={(e) => {
