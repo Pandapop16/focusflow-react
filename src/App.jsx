@@ -83,14 +83,16 @@ function App() {
   }
 
   function toggleSubtask(taskId,subtaskId) {
-    setTasks(tasks.map(function(task) {
+    setTasks(tasks.map(function(task){
       if (task.id === taskId) {
+        const updatedSubtasks = task.subtasks.map(function(sub) {
+          if (sub.id === subtaskId) return {...sub, done: !sub.done}
+          return sub
+        })
+        const allDone = updatedSubtasks.length > 0 && updatedSubtasks.every(s => s.done)
         return {
-          ...task,
-          subtasks: task.subtasks.map(function(sub) {
-            if (sub.id === subtaskId) return { ...sub, done: !sub.done}
-            return sub
-          })
+          ...task, subtasks: updatedSubtasks,
+          done: allDone
         }
       }
       return task

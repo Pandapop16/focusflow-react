@@ -8,6 +8,14 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
   const [sortBy, setSortBy] = useState('none')
   const [subtaskInputId, setSubtaskInputId] = useState(null)
   const [subtaskText, setSubtaskText] = useState('')
+  const [collapsedTasks, setCollapsedTasks] = useState({})
+
+  function toggleCollapse(taskId) {
+    setCollapsedTasks(prev => ({
+      ...prev,
+      [taskId] : !prev[taskId]
+    }))
+  }
 
   const filteredTasks = tasks
     .filter(function(task) {
@@ -142,45 +150,67 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
                     </div>
                   )}
 
-                  {/* Список подзадач */}
                   {task.subtasks && task.subtasks.length > 0 && (
+                    <div className="task-progress">
+                      <div
+                      className="task-progress-fill"
+                      style={{
+                        width: `${Math.round((task.subtasks.filter(s => s.done).length / task.subtasks.length) * 100)}%`
+                      }}
+                      ></div>
+                    </div>
+                  )}
+
+                  {/* Список подзадач */}
+                 {task.subtasks && task.subtasks.length > 0 && (
                     <div className="subtask-section">
-                      <span className="subtask-counter">
-                        ✅ {task.subtasks.filter(s => s.done).length} из {task.subtasks.length}
-                      </span>
-                    <ul className="subtask-list">
-                      {task.subtasks.map(function(sub) {
-                        return (
-                          <li key={sub.id} className="subtask-item">
-                            <input 
-                            type="checkbox"
-                             checked={sub.done} 
-                             onChange={(e) => {
-                              e.stopPropagation()
-                              onToggleSubtask(task.id, sub.id)
-                              }}
-                            />
-                            <span 
-                            className={sub.done ? 'completed' : ''}
-                            style={{cursor: 'pointer', flex:1}}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onToggleSubtask(task.id, sub.id)
-                            }}
-                            >
-                              {sub.text}
-                              </span>
-                            <button 
-                              className="delete-btn"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onDeleteSubtask(task.id, sub.id)
-                              }}
-                              >❌</button>
-                          </li>
-                        )
-                      })}
-                    </ul>
+                      <div
+                        className="subtask-header"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleCollapse(task.id)
+                        }}
+                      >
+                        <span className="subtask-counter">
+                          {collapsedTasks[task.id] ? '▶' : '▼'} Подзадачи — {task.subtasks.filter(s => s.done).length} из {task.subtasks.length}
+                        </span>
+                      </div>
+
+                      {!collapsedTasks[task.id] && (
+                        <ul className="subtask-list">
+                          {task.subtasks.map(function(sub) {
+                            return (
+                              <li key={sub.id} className="subtask-item">
+                                <input
+                                  type="checkbox"
+                                  checked={sub.done}
+                                  onChange={(e) => {
+                                    e.stopPropagation()
+                                    onToggleSubtask(task.id, sub.id)
+                                  }}
+                                />
+                                <span
+                                  className={sub.done ? 'completed' : ''}
+                                  style={{ cursor: 'pointer', flex: 1 }}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onToggleSubtask(task.id, sub.id)
+                                  }}
+                                >
+                                  {sub.text}
+                                </span>
+                                <button
+                                  className="delete-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    onDeleteSubtask(task.id, sub.id)
+                                  }}
+                                >❌</button>
+                              </li>
+                            )
+                          })}
+                        </ul>
+                      )}
                     </div>
                   )}
                 </motion.li>
