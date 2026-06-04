@@ -20,6 +20,35 @@ function App() {
   const [isDark, setIsDark] = useState(true)
   const [filter, setFilter] = useState('all')
   const [formOpen, setFormOpen] = useState(false)
+  const [isLocked, setIsLocked] = useState(false)
+  const [pin,setPin] = useState(localStorage.getItem('pin') || '')
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState(false)
+
+
+  function handleSetPin(newPin) {
+    setPin(newPin)
+    localStorage.setItem('pin', newPin)
+  }
+
+  function lockApp() {
+    if(!pin) {
+      alert('Сначала установите PIN в настройках')
+      return
+    }
+    setIsLocked(true)
+  }
+
+  function unlockApp() {
+    if (pinInput === pin) {
+      setIsLocked(false)
+      setPinInput('')
+      setPinError(false)
+    } else {
+      setPinError(true)
+      setPinInput('')
+    }
+  }
 
   useEffect(function() {
     localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -120,49 +149,74 @@ function App() {
   }
 
   return (
-    <div>
-      <Header isDark={isDark} onToggleTheme={toggleTheme} />
-      <Routes>
-        <Route path="/" element={
-          <main id="app">
-            <Progress tasks={tasks} />
-            <TaskForm
-              inputValue={inputValue}
-              onInputChange={setInputValue}
-              onAddTask={addTask}
-              dateValue={dateValue}
-              onDateChange={setDateValue}
-              timeValue={timeValue}
-              onTimeChange={setTimeValue}
-              priority={priority}
-              onPriorityChange={setPriority}
-              formOpen={formOpen}
-              onToggleForm={() => setFormOpen(!formOpen)}
-              />
-            <TaskList
-              tasks={tasks}
-              onToggle={toggleTask}
-              onDelete={deleteTask}
-              onEdit={editTask}
-              onAddSubtask={addSubtask}
-              onToggleSubtask={toggleSubtask}
-              onDeleteSubtask={deleteSubtask}
-              filter={filter}
-              onFilterChange={setFilter}
-            />
-          </main>
-        } />
-        <Route path="/stats" element={<Stats tasks={tasks} />} />
-        <Route path="/settings" element={
-          <Settings
-            isDark={isDark}
-            onToggleTheme={toggleTheme}
-            onClearTasks={clearTask}
+  <div>
+    {isLocked ? (
+      <div className="lock-screen">
+        <div className="lock-card">
+          <div className="lock-icon">🔒</div>
+          <h2>FocusFlow заблокирован</h2>
+          <p>Введите PIN для доступа</p>
+          <input
+            type="password"
+            placeholder="Введите PIN..."
+            value={pinInput}
+            onChange={(e) => setPinInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && unlockApp()}
+            maxLength={6}
+            autoFocus
           />
-        } />
-      </Routes>
-    </div>
-  )
-}
+          {pinError && <p className="pin-error">Неверный PIN</p>}
+          <button onClick={unlockApp}>Разблокировать</button>
+        </div>
+      </div>
+    ) : (
+      <>
+        <Header isDark={isDark} onToggleTheme={toggleTheme} onLock={lockApp} />
+        <Routes>
+          <Route path="/" element={
+            <main id="app">
+              <Progress tasks={tasks} />
+              <TaskForm
+                inputValue={inputValue}
+                onInputChange={setInputValue}
+                onAddTask={addTask}
+                dateValue={dateValue}
+                onDateChange={setDateValue}
+                timeValue={timeValue}
+                onTimeChange={setTimeValue}
+                priority={priority}
+                onPriorityChange={setPriority}
+                formOpen={formOpen}
+                onToggleForm={() => setFormOpen(!formOpen)}
+              />
+              <TaskList
+                tasks={tasks}
+                onToggle={toggleTask}
+                onDelete={deleteTask}
+                onEdit={editTask}
+                onAddSubtask={addSubtask}
+                onToggleSubtask={toggleSubtask}
+                onDeleteSubtask={deleteSubtask}
+                filter={filter}
+                onFilterChange={setFilter}
+              />
+            </main>
+          } />
+          <Route path="/stats" element={<Stats tasks={tasks} />} />
+          <Route path="/settings" element={
+            <Settings
+              isDark={isDark}
+              onToggleTheme={toggleTheme}
+              onClearTasks={clearTask}
+              pin={pin}
+              onSetPin={handleSetPin}
+            />
+          } />
+        </Routes>
+      </>
+    )}
+  </div>
+)
 
+}
 export default App
