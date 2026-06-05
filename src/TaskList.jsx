@@ -107,6 +107,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
                     ) : (
                       <span className={task.done ? 'completed' : ''}>
                         {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
+                        {task.category === 'work' ? '💼' : task.category === 'health' ? '💪' : task.category === 'study' ? '📚': '👤'}
                         {task.text}
                       </span>
                     )}

@@ -24,6 +24,7 @@ function App() {
   const [pin,setPin] = useState(localStorage.getItem('pin') || '')
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState(false)
+  const [category, setCategory] = useState('personal')
 
 
   function handleSetPin(newPin) {
@@ -68,12 +69,14 @@ function App() {
       date: dateValue,
       time: timeValue,
       priority: priority,
+      category: category,
       subtasks: []
     }])
     setInputValue('')
     setDateValue('')
     setTimeValue('')
     setPriority('medium')
+    setCategory('personal')
   }
 
   function toggleTask(id) {
@@ -188,6 +191,8 @@ function App() {
                 onPriorityChange={setPriority}
                 formOpen={formOpen}
                 onToggleForm={() => setFormOpen(!formOpen)}
+                category={category}
+                onCategoryChange={setCategory}
               />
               <TaskList
                 tasks={tasks}
