@@ -13,7 +13,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
   function toggleCollapse(taskId) {
     setCollapsedTasks(prev => ({
       ...prev,
-      [taskId] : !prev[taskId]
+      [taskId]: !prev[taskId]
     }))
   }
 
@@ -27,7 +27,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
       return task.text.toLowerCase().includes(search.toLowerCase())
     })
 
-  const sortedTasks = [...filteredTasks].sort(function(a, b) {
+  const sortedTasks = sortBy === 'none' ? filteredTasks : [...filteredTasks].sort(function(a, b) {
     if (sortBy === 'priority') {
       const order = { high: 0, medium: 1, low: 2 }
       return order[a.priority] - order[b.priority]
@@ -37,9 +37,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
       if (!b.date) return -1
       return new Date(a.date) - new Date(b.date)
     }
-    if (sortBy === 'name') {
-      return a.text.localeCompare(b.text)
-    }
+    if (sortBy === 'name') return a.text.localeCompare(b.text)
     return 0
   })
 
@@ -47,11 +45,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
     <section className="card">
       <h2>Задачи на сегодня</h2>
 
-      <input
-        placeholder="🔍 Поиск задач..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <input placeholder="🔍 Поиск задач..." value={search} onChange={(e) => setSearch(e.target.value)} />
 
       <div className="filters">
         <button className={`filter-btn ${filter === 'all' ? 'active-filter' : ''}`} onClick={() => onFilterChange('all')}>Все</button>
@@ -107,7 +101,7 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
                     ) : (
                       <span className={task.done ? 'completed' : ''}>
                         {task.priority === 'high' ? '🔴 ' : task.priority === 'low' ? '🟢 ' : '🟡 '}
-                        {task.category === 'work' ? '💼' : task.category === 'health' ? '💪' : task.category === 'study' ? '📚': '👤'}
+                        {task.category === 'work' ? '💼 ' : task.category === 'health' ? '💪 ' : task.category === 'study' ? '📚 ' : '👤 '}
                         {task.text}
                       </span>
                     )}
@@ -121,10 +115,9 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
 
                     <button className="subtask-add-btn" onClick={(e) => { e.stopPropagation(); setSubtaskInputId(subtaskInputId === task.id ? null : task.id); setSubtaskText('') }}>➕</button>
                     <button className="edit-btn" onClick={(e) => { e.stopPropagation(); setEditingId(task.id); setEditText(task.text) }}>✏️</button>
-                    <button className="delete-btn" onClick={(e) => { e.stopPropagation(); onDelete(task.id) }}>❌</button>
+                    <button className="delete-btn" onClick={(e) => { e.stopPropagation(); onDelete(task.id) }}>✖️</button>
                   </div>
 
-                  {/* Поле добавления подзадачи */}
                   {subtaskInputId === task.id && (
                     <div className="subtask-input-row" onClick={(e) => e.stopPropagation()}>
                       <input
@@ -153,60 +146,25 @@ function TaskList({ tasks, onToggle, onDelete, onEdit, onAddSubtask, onToggleSub
 
                   {task.subtasks && task.subtasks.length > 0 && (
                     <div className="task-progress">
-                      <div
-                      className="task-progress-fill"
-                      style={{
-                        width: `${Math.round((task.subtasks.filter(s => s.done).length / task.subtasks.length) * 100)}%`
-                      }}
-                      ></div>
+                      <div className="task-progress-fill" style={{ width: `${Math.round((task.subtasks.filter(s => s.done).length / task.subtasks.length) * 100)}%` }}></div>
                     </div>
                   )}
 
-                  {/* Список подзадач */}
-                 {task.subtasks && task.subtasks.length > 0 && (
+                  {task.subtasks && task.subtasks.length > 0 && (
                     <div className="subtask-section">
-                      <div
-                        className="subtask-header"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleCollapse(task.id)
-                        }}
-                      >
+                      <div className="subtask-header" onClick={(e) => { e.stopPropagation(); toggleCollapse(task.id) }}>
                         <span className="subtask-counter">
                           {collapsedTasks[task.id] ? '▶' : '▼'} Подзадачи — {task.subtasks.filter(s => s.done).length} из {task.subtasks.length}
                         </span>
                       </div>
-
                       {!collapsedTasks[task.id] && (
                         <ul className="subtask-list">
                           {task.subtasks.map(function(sub) {
                             return (
                               <li key={sub.id} className="subtask-item">
-                                <input
-                                  type="checkbox"
-                                  checked={sub.done}
-                                  onChange={(e) => {
-                                    e.stopPropagation()
-                                    onToggleSubtask(task.id, sub.id)
-                                  }}
-                                />
-                                <span
-                                  className={sub.done ? 'completed' : ''}
-                                  style={{ cursor: 'pointer', flex: 1 }}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onToggleSubtask(task.id, sub.id)
-                                  }}
-                                >
-                                  {sub.text}
-                                </span>
-                                <button
-                                  className="delete-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    onDeleteSubtask(task.id, sub.id)
-                                  }}
-                                >❌</button>
+                                <input type="checkbox" checked={sub.done} onChange={(e) => { e.stopPropagation(); onToggleSubtask(task.id, sub.id) }} />
+                                <span className={sub.done ? 'completed' : ''} style={{ cursor: 'pointer', flex: 1 }} onClick={(e) => { e.stopPropagation(); onToggleSubtask(task.id, sub.id) }}>{sub.text}</span>
+                                <button className="delete-btn" onClick={(e) => { e.stopPropagation(); onDeleteSubtask(task.id, sub.id) }}>✖️</button>
                               </li>
                             )
                           })}

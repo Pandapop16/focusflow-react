@@ -7,6 +7,8 @@ import Stats from './Stats'
 import Settings from './Settings'
 import TaskForm from './TaskForm'
 
+
+
 function App() {
   const [tasks, setTasks] = useState(function() {
     const saved = localStorage.getItem('tasks')
@@ -151,6 +153,26 @@ function App() {
     }
   }
 
+  function exportTasks() {
+    const text = tasks.map(function(task,i) {
+      const status = task.done ? '✅' : '⬜'
+      const priority = task.priority === 'high' ? '🔴' : task.priority === 'low' ? '🟢' : '🟡' 
+      const date = task.date  ? `| ${new Date(task.date + 'T00:00:00').toLocaleDateString('ru-Ru')}` : ''
+      const subtasks = task.subtasks && task.subtasks.length > 0
+      ? '\n' + task.subtasks.map(s => ` ${s.done ? '✅' : '⬜'} ${s.text}`). join('\n')
+      : ''
+      return `${i + 1}. ${status} ${priority} ${task.text}${date}${subtasks}`
+    }).join('\n\n')
+
+    const blob = new Blob([text], {type: 'text/plan;charset=utf-8'})
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download ='focusflow-tasks.txt'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
   <div>
     {isLocked ? (
@@ -215,6 +237,7 @@ function App() {
               onClearTasks={clearTask}
               pin={pin}
               onSetPin={handleSetPin}
+              onExport={exportTasks}
             />
           } />
         </Routes>

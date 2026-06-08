@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function Settings({ isDark, onToggleTheme, onClearTasks, pin, onSetPin }) {
+function Settings({ isDark, onToggleTheme, onClearTasks, pin, onSetPin, onExport }) {
   const [newPin, setNewPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
   const [pinMessage, setPinMessage] = useState('')
@@ -83,6 +83,15 @@ function Settings({ isDark, onToggleTheme, onClearTasks, pin, onSetPin }) {
 
       <section className="card">
         <h2>Данные</h2>
+        <div className="settings-item">
+          <div className="settings-info">
+            <span className="settings-title">Экспорт задач</span>
+            <span className="settings-desc">Скачать все задачи как текстовый файл</span>
+          </div>
+          <button className="settings-btn" onClick={onExport}>
+            📥 Экспорт
+          </button>
+        </div>
         <div className="settings-item">
           <div className="settings-info">
             <span className="settings-title">Очистить задачи</span>
